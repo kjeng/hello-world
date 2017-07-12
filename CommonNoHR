@@ -27,7 +27,7 @@ FROM matviews.ss_cube cub
 WHERE cub.academic_year = 2016
       AND cub.course_id IN (SELECT course_id
                             FROM public.courses
-                            WHERE department_id = 23)
+                            WHERE department_id = 23) /*deparment_id 23 = Homeroom*/
 UNION
 
 /*PAST YEAR 2017*/
