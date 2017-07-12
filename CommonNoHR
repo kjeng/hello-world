@@ -1,0 +1,88 @@
+/*PAST YEAR 2016*/
+SELECT
+  cub.academic_year,
+  concat(stu.first_name, ' ', stu.last_name) AS name,
+  cub.student_id,
+  sit.site_long_name                         AS school,
+  cub.grade_level_id                         AS grade,
+  CASE WHEN ep.code_key = 'RFEP' AND sl.redesignation_date > '2015-10-07'
+    THEN 'EL'
+  ELSE ep.code_key END                       AS el,
+  CASE WHEN sped.primary_disability IS NULL
+    THEN 'GenEd'
+  ELSE 'SpEd' END                            AS sped,
+  re.combined_race_ethnicity                 AS ethnicity
+FROM matviews.ss_cube cub
+  LEFT JOIN public.students stu ON cub.student_id = stu.student_id
+  LEFT JOIN (SELECT
+               student_id,
+               max(redesignation_date) AS redesignation_date
+             FROM public.student_language
+             GROUP BY student_id) sl ON sl.student_id = cub.student_id
+  LEFT JOIN codes.english_proficiency ep ON ep.code_id = stu.english_proficiency
+  LEFT JOIN public.sites sit ON sit.site_id = cub.site_id
+  LEFT JOIN public.student_specialed sped ON cub.student_id = sped.student_id AND sped.entry_date <= '2016-05-30' AND
+                                             (sped.exit_date IS NULL OR sped.exit_date >= '2016-05-30')
+  LEFT JOIN public.race_ethnicity_combined re ON re.student_id = cub.student_id
+WHERE cub.academic_year = 2016
+      AND cub.course_id IN (SELECT course_id
+                            FROM public.courses
+                            WHERE department_id = 23)
+UNION
+
+/*PAST YEAR 2017*/
+SELECT
+  cub.academic_year,
+  concat(stu.first_name, ' ', stu.last_name) AS name,
+  cub.student_id,
+  sit.site_long_name                         AS school,
+  cub.grade_level_id                         AS grade,
+  CASE WHEN ep.code_key = 'RFEP' AND sl.redesignation_date > '2016-10-05'
+    THEN 'EL'
+  ELSE ep.code_key END                       AS el,
+  CASE WHEN sped.primary_disability IS NULL
+    THEN 'GenEd'
+  ELSE 'SpEd' END                            AS sped,
+  re.combined_race_ethnicity                 AS ethnicity
+FROM matviews.ss_cube cub
+  LEFT JOIN public.students stu ON cub.student_id = stu.student_id
+  LEFT JOIN (SELECT
+               student_id,
+               max(redesignation_date) AS redesignation_date
+             FROM public.student_language
+             GROUP BY student_id) sl ON sl.student_id = cub.student_id
+  LEFT JOIN codes.english_proficiency ep ON ep.code_id = stu.english_proficiency
+  LEFT JOIN public.sites sit ON sit.site_id = cub.site_id
+  LEFT JOIN public.student_specialed sped ON cub.student_id = sped.student_id AND sped.entry_date <= '2017-05-30' AND
+                                             (sped.exit_date IS NULL OR sped.exit_date >= '2017-05-30')
+  LEFT JOIN public.race_ethnicity_combined re ON re.student_id = cub.student_id
+WHERE cub.academic_year = 2017
+      AND cub.course_id IN (SELECT course_id
+                            FROM public.courses
+                            WHERE department_id = 23)
+
+UNION
+
+/*CURRENT YEAR (2018)*/
+SELECT
+  cub.academic_year,
+  concat(stu.first_name, ' ', stu.last_name) AS name,
+  cub.student_id,
+  sit.site_long_name                         AS school,
+  cub.grade_level_id                         AS grade,
+  ep.code_key                       AS el,
+  CASE WHEN sped.primary_disability IS NULL
+    THEN 'GenEd'
+  ELSE 'SpEd' END                            AS sped,
+  re.combined_race_ethnicity                 AS ethnicity
+FROM matviews.ss_cube cub
+  LEFT JOIN public.students stu ON cub.student_id = stu.student_id
+  LEFT JOIN codes.english_proficiency ep ON ep.code_id = stu.english_proficiency
+  LEFT JOIN public.sites sit ON sit.site_id = cub.site_id
+  LEFT JOIN public.student_specialed sped ON cub.student_id = sped.student_id AND sped.entry_date <= current_date AND
+                                             (sped.exit_date IS NULL OR sped.exit_date >= current_date)
+  LEFT JOIN public.race_ethnicity_combined re ON re.student_id = cub.student_id
+WHERE cub.academic_year = 2018
+      AND cub.course_id IN (SELECT course_id
+                            FROM public.courses
+                            WHERE department_id = 23)
